@@ -18,3 +18,11 @@ exports.UserSchema = mongoose.model("User", {
     default: "operator",
   },
 });
+
+exports.BarangSchema = mongoose.model("Barang", {
+  nama: String,
+  user: {
+    username: String,
+    email: String,
+  },
+});
