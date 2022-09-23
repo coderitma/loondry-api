@@ -11,4 +11,10 @@ exports.UserSchema = mongoose.model("User", {
   password: String,
   email: String,
   salt: String,
+  role: {
+    type: String,
+    enum: ["operator", "admin"],
+    require: true,
+    default: "operator",
+  },
 });

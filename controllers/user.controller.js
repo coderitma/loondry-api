@@ -3,10 +3,10 @@ const UserModel = require("../models/user.model");
 
 exports.UserSignin = async (req, res, next) => {
   if (req.method == "POST") {
-    var token = jwt.sign(req.body, "78c878x7h8iy8h8ti96siyd8sh", {
-      algorithm: "HS256",
-    });
-    res.json({ token });
+    // manggil usermodel buat proses authentication
+    UserModel.authenticated(req.body)
+      .then((result) => res.json(result))
+      .catch((err) => res.status(401).json(err));
   }
 };
 
