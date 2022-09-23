@@ -8,5 +8,6 @@ var barangController = require("./barang.controller");
 module.exports = (app) => {
   app.use("/user/signup", userController.UserSignup);
   app.use("/user/signin", userController.UserSignin);
+  app.use("/barang/:id", [isAuthenticated], barangController.DetailBarang);
   app.use("/barang", [isAuthenticated], barangController.ListBarang);
 };
