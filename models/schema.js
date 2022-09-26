@@ -26,3 +26,51 @@ exports.BarangSchema = mongoose.model("Barang", {
     email: String,
   },
 });
+
+exports.FakturSchema = mongoose.model("Faktur", {
+  tanggalTerima: Date,
+  nomorHP: {
+    type: String,
+    length: 12,
+    required: true,
+  },
+  namaCustomer: {
+    type: String,
+    required: true,
+  },
+  alamat: {
+    type: String,
+  },
+  berat: {
+    type: Number,
+  },
+  totalHarga: {
+    type: Number,
+    required: true,
+  },
+  uangMuka: {
+    type: Number,
+    required: true,
+  },
+  sisa: {
+    type: Number,
+  },
+  kembali: {
+    type: Number,
+  },
+  statusCucian: {
+    type: String,
+    enum: ["belum", "sudah"],
+    default: "belum",
+  },
+  statusPengambilan: {
+    type: String,
+    enum: ["belum", "sudah"],
+    default: "belum",
+  },
+  daftarBarang: [{ nama: String, jumlah: Number }],
+  pic: {
+    username: String,
+    email: String,
+  },
+});

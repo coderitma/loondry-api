@@ -6,13 +6,15 @@ exports.all = (query) => {
   let { limit, ...search } = query;
 
   return new Promise((resolve, reject) => {
-    schema.BarangSchema.find(search, (err, result) => {
+    schema.BarangSchema.find(search, ["nama", "user", "id"], (err, result) => {
       if (err) {
         reject(err);
       } else {
         resolve(result);
       }
-    }).limit(limit ? limit : 10);
+    })
+      .lean()
+      .limit(limit ? limit : 10);
   });
 };
 

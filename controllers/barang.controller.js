@@ -2,7 +2,12 @@ const BarangModel = require("../models/barang.model");
 
 exports.ListBarang = async (req, res, next) => {
   if (req.method === "GET") {
-    res.json(await BarangModel.all(req.query));
+    let result = await BarangModel.all(req.query);
+    result.forEach((element, index) => {
+      result[index].detail = "/barang/" + element._id;
+    });
+
+    res.json(result);
   } else if (req.method === "POST") {
     let payload = req.body;
     payload.user = {
