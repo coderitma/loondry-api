@@ -13,8 +13,9 @@ module.exports = (app) => {
   app.use("/barang/:id", [isAuthenticated], barangController.DetailBarang);
   app.use("/barang", [isAuthenticated], barangController.ListBarang);
   app.use(
-    "/transaksi/terima-cucian",
+    "/faktur/:nomorterima",
     [isAuthenticated],
-    transaksiController.TerimaCucian
+    transaksiController.StatusCucian
   );
+  app.use("/faktur", [isAuthenticated], transaksiController.ListCucian);
 };

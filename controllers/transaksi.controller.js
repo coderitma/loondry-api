@@ -1,7 +1,13 @@
 const TransaksiModel = require("../models/transaksi.model");
 
-exports.TerimaCucian = async (req, res, next) => {
-  if (req.method === "POST") {
+exports.ListCucian = async (req, res, next) => {
+  if (req.method === "GET") {
+    let result = await TransaksiModel.all(req.query);
+    result.forEach((element, index) => {
+      result[index].detail = "/faktur/" + element._id;
+    });
+    res.json(result);
+  } else if (req.method === "POST") {
     let payload = req.body;
     let harga = 10000;
     payload.totalHarga = payload.berat * harga;
@@ -22,11 +28,17 @@ exports.TerimaCucian = async (req, res, next) => {
 };
 
 exports.StatusCucian = async (req, res, next) => {
-  if (req.method === "POST") {
-  }
-};
-
-exports.AmbilCucian = async (req, res, next) => {
-  if (req.method === "POST") {
+  let nomorTerima = req.params.nomorterima;
+  if (req.method === "GET") {
+    res.json(await TransaksiModel.get(nomorTerima));
+  } else if (req.method === "PUT") {
+    if (
+      req.body.statusCucian === "belum" &&
+      req.body.statusPengambilan === "sudah"
+    ) {
+      res.status(400).json({ message: "Invalid update!" });
+    } else {
+      res.json(await TransaksiModel.statusCucian(req.body, nomorTerima));
+    }
   }
 };

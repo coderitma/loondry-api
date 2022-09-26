@@ -73,4 +73,9 @@ exports.FakturSchema = mongoose.model("Faktur", {
     username: String,
     email: String,
   },
+  softDelete: {
+    type: Boolean,
+    enum: [false, true],
+    default: false,
+  },
 });
