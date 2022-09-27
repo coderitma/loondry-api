@@ -18,25 +18,32 @@ exports.all = (query) => {
 
 exports.get = (nomorterima) => {
   return new Promise((resolve, reject) => {
-    schema.FakturSchema.findById(nomorterima, (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
+    schema.FakturSchema.findById(
+      nomorterima,
+      { "daftarBarang._id": 0, __v: 0 },
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
       }
-    });
+    );
   });
 };
 
 exports.terimaCucian = (data) => {
   return new Promise((resolve, reject) => {
-    new schema.FakturSchema(data).save((err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
+    new schema.FakturSchema(data).save(
+      { "daftarBarang._id": 0, __v: 0 },
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ result, data });
+        }
       }
-    });
+    );
   });
 };
 
