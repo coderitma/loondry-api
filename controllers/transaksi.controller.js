@@ -1,35 +1,24 @@
 const express = require("express");
-var FormData = require("form-data");
 const helper = require("../helper");
 const axios = require("axios");
 const router = express.Router();
 const TransaksiModel = require("../models/transaksi.model");
 const { isAuthenticated } = require("../middlewares/auth.middleware");
 
-// TODO: custom cors!
-const sendWhatsapp = (phone, text) => {
-  console.log(process.env.FONNTE_KEY);
-
-  var bodyFormData = new FormData();
-  bodyFormData.append("phone", "08123456789");
-  bodyFormData.append("type", "text");
-  bodyFormData.append("text", "hallo ini pesan test ok");
-  bodyFormData.append("delay", "0");
-  bodyFormData.append("delay_req", "1");
-  bodyFormData.append("schedule", "0");
-
+const sendWhatsvuck = (phone, message) => {
+  const payload = {
+    phone: phone,
+    message: message,
+  };
   axios({
     method: "post",
-    url: "https://md.fonnte.com/api/send_message.php",
-    data: bodyFormData,
+    url: "http://localhost:5000/send",
+    data: JSON.stringify(payload),
     headers: {
-      "Content-Type": "multipart/form-data",
-      accept: "*/*",
-      Authorization: process.env.FONNTE_KEY,
+      "content-type": "application/json",
     },
-    redirect: "follow",
   })
-    .then((response) => console.log(response))
+    .then((response) => console.log(response.data))
     .catch((err) => console.log(err));
 };
 
@@ -60,9 +49,21 @@ router.post("/", [isAuthenticated], async (req, res) => {
 
   TransaksiModel.terimaCucian(payload)
     .then((result) => {
-      console.log(payload.nomorHP);
-      sendWhatsapp(payload.nomorHP, "coba dulu");
+      // console.log(payload.nomorHP);
+      // sendWhatsapp(payload.nomorHP, "coba dulu");
+      let arrBarang = [];
+      payload.daftarBarang.forEach((element) => {
+        arrBarang.push(`${element.nama} - ${element.jumlah}`);
+      });
       result.data.cetakFaktur = "/faktur/download/" + result.result._id;
+      var fullUrl =
+        req.protocol +
+        "://" +
+        req.get("host") +
+        req.originalUrl +
+        result.data.cetakFaktur;
+      const pesan = `${fullUrl}`;
+      sendWhatsvuck(payload.nomorHP, pesan);
       res.json(result.data);
     })
     .catch((err) => {

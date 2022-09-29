@@ -33,11 +33,11 @@ function generateHeader(doc) {
     .image("logo.png", 50, 45, { width: 50 })
     .fillColor("#444444")
     .fontSize(20)
-    .text("ACME Inc.", 110, 57)
+    .text("PT. Anugerah Mandiri.", 110, 57)
     .fontSize(10)
-    .text("ACME Inc.", 200, 50, { align: "right" })
-    .text("123 Main Street", 200, 65, { align: "right" })
-    .text("New York, NY, 10025", 200, 80, { align: "right" })
+    .text("PT. Anugerah Mandiri.", 200, 50, { align: "right" })
+    .text("Jl. Bojong Kenyot", 200, 65, { align: "right" })
+    .text("Jakarta Pinggir, JakPing, 10027", 200, 80, { align: "right" })
     .moveDown();
 }
 
@@ -85,6 +85,8 @@ exports.generatePDF = (res, faktur) => {
 
   generateHeader(doc);
   generateCustomerInformation(doc, faktur);
+  generateInvoiceTable(doc, faktur);
+  generateFooter(doc, faktur);
   let buffers = [];
   doc.on("data", buffers.push.bind(buffers));
   doc.on("end", () => {
@@ -100,3 +102,70 @@ exports.generatePDF = (res, faktur) => {
 
   doc.end();
 };
+
+function generateTableRow(doc, y, nama, jumlah) {
+  doc.fontSize(10).text(nama, 50, y).text(jumlah, 150, y, {
+    width: 90,
+    align: "right",
+  });
+}
+
+function generateInvoiceTable(doc, faktur) {
+  let i;
+  let count = 0;
+  const invoiceTableTop = 330;
+
+  doc.font("Helvetica-Bold");
+  generateTableRow(doc, invoiceTableTop, "Nama", "Jumlah");
+  generateHr(doc, invoiceTableTop + 20);
+  doc.font("Helvetica");
+  // 2
+  for (i = 0; i < faktur.daftarBarang.length; i++) {
+    const barang = faktur.daftarBarang[i];
+    const position = invoiceTableTop + (i + 1) * 30;
+    count += barang.jumlah;
+    generateTableRow(doc, position, barang.nama, barang.jumlah);
+    generateHr(doc, position + 20);
+  }
+
+  const subtotalPosition = invoiceTableTop + (i + 1) * 30;
+  doc.font("Helvetica-Bold");
+  generateTableRow(doc, subtotalPosition, "Total jumlah", count);
+
+  // const paidToDatePosition = subtotalPosition + 20;
+  // generateTableRow(
+  //   doc,
+  //   paidToDatePosition,
+  //   "",
+  //   "",
+  //   "Paid To Date",
+  //   "",
+  //   formatCurrency(invoice.paid)
+  // );
+
+  // const duePosition = paidToDatePosition + 25;
+  // doc.font("Helvetica-Bold");
+  // generateTableRow(
+  //   doc,
+  //   duePosition,
+  //   "",
+  //   "",
+  //   "Balance Due",
+  //   "",
+  //   formatCurrency(invoice.subtotal - invoice.paid)
+  // );
+  // doc.font("Helvetica");
+}
+
+function generateFooter(doc, faktur) {
+  doc
+    .fontSize(10)
+    .text(
+      faktur.sisa === 0
+        ? `Terimakasih, senang berbisnis dengan anda`
+        : `Batas pembayaran sisa sebesar Rp. ${faktur.sisa} harus segara dilunasi.`,
+      50,
+      580,
+      { align: "center", width: 500 }
+    );
+}

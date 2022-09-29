@@ -18,7 +18,6 @@ exports.isAuthenticated = (req, res, next) => {
 
 exports.operatorAdmin = (req, res, next) => {
   const ONLY_OPERATOR_ADMIN = "admin";
-  // TODO: secure token with roles (minor)
   if (req.user) {
     if (req.user.role === ONLY_OPERATOR_ADMIN) {
       next();
