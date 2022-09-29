@@ -1,27 +1,56 @@
 var schema = require("./schema");
 
-exports.laporanTransaksi = () => {
+exports.laporanTransaksi = ({
+  tanggalAwal,
+  tanggalAkhir,
+  statusPengambilan,
+}) => {
   return new Promise((resolve, reject) => {
-    // db.collection.aggregate([
-    //   {
-    //     $group: {
-    //       _id: { account: "$account" },
-    //       vendors: { $addToSet: "$vendor" },
-    //     },
-    //   },
-    //   {
-    //     $unwind: "$vendors",
-    //   },
-    //   {
-    //     $group: { _id: "$_id", vendorCount: { $sum: 1 } },
-    //   },
-    // ]);
     schema.FakturSchema.aggregate(
       [
         {
+          $match: {
+            statusPengambilan: statusPengambilan,
+            sisa: { $gt: 0 },
+            tanggalTerima: {
+              $gte: new Date(tanggalAwal),
+              $lte: new Date(tanggalAkhir),
+            },
+          },
+        },
+        {
           $group: {
             _id: {
-              // bulan: { $month: "$tanggalTerima" },
+              tanggal: { $dayOfMonth: "$tanggalTerima" },
+              bulan: { $month: "$tanggalTerima" },
+              tahun: { $year: "$tanggalTerima" },
+              // nomorHP: "$nomorHP",
+            },
+            totalHarga: { $sum: "$totalHarga" },
+          },
+        },
+      ],
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
+};
+
+exports.laporanPelanggan = (req, res) => {
+  return new Promise((resolve, reject) => {
+    schema.FakturSchema.aggregate(
+      [
+        {},
+        {
+          $group: {
+            _id: {
+              bulan: { $month: "$tanggalTerima" },
+              tanggal: { $dayOfMonth: "$tanggalTerima" },
               tahun: { $year: "$tanggalTerima" },
               nomorHP: "$nomorHP",
             },

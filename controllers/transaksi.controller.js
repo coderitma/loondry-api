@@ -85,7 +85,23 @@ router.put("/:nomorterima", [isAuthenticated], async (req, res) => {
   ) {
     res.status(400).json({ message: "Invalid update!" });
   } else {
-    res.json(await TransaksiModel.statusCucian(req.body, nomorTerima));
+    let transaksi = await TransaksiModel.get(nomorTerima);
+    if (
+      req.body.statusPengambilan === "sudah" &&
+      req.body.statusCucian === "sudah"
+    ) {
+      // TODO: beresin logic!
+      let customBody = req.body;
+      customBody.sisa = 0;
+      customBody.uangMuka = transaksi.totalHarga;
+      customBody.kembali = 0;
+      res.json(await TransaksiModel.statusCucian(customBody, nomorTerima));
+    } else if (
+      req.body.statusPengambilan === "belum" &&
+      req.body.statusCucian === "sudah"
+    ) {
+      res.json(await TransaksiModel.statusCucian(req.body, nomorTerima));
+    }
   }
 });
 
