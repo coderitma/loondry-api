@@ -11,7 +11,7 @@ exports.laporanTransaksi = ({
         {
           $match: {
             statusPengambilan: statusPengambilan,
-            // sisa: { $gt: 0 },
+            sisa: { $eq: 0 },
             tanggalTerima: {
               $gte: new Date(tanggalAwal),
               $lte: new Date(tanggalAkhir),
@@ -42,11 +42,24 @@ exports.laporanTransaksi = ({
   });
 };
 
-exports.laporanPelanggan = (req, res) => {
+exports.laporanPelanggan = ({
+  tanggalAwal,
+  tanggalAkhir,
+  statusPengambilan,
+}) => {
   return new Promise((resolve, reject) => {
     schema.FakturSchema.aggregate(
       [
-        {},
+        {
+          $match: {
+            statusPengambilan: statusPengambilan,
+            sisa: { $eq: 0 },
+            tanggalTerima: {
+              $gte: new Date(tanggalAwal),
+              $lte: new Date(tanggalAkhir),
+            },
+          },
+        },
         {
           $group: {
             _id: {
@@ -54,6 +67,7 @@ exports.laporanPelanggan = (req, res) => {
               tanggal: { $dayOfMonth: "$tanggalTerima" },
               tahun: { $year: "$tanggalTerima" },
               nomorHP: "$nomorHP",
+              cutomer: "$namaCustomer"
             },
             total: { $addToSet: "$_id" },
           },

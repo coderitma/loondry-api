@@ -10,23 +10,14 @@ router.get("/download/:nomorterima", async (req, res) => {
 });
 
 router.get("/faktur", async (req, res) => {
-  // laporanModel
-  //   .laporanTransaksi(req.query)
-  //   .then((result) => {
-  //     helper.laporanTransaksiCucian(res, result);
-  //     // res.json(result)
-  //   })
-  //   .catch((err) => res.status(400).json({message: "ups errr"}));\
-
   const faktur = await laporanModel.laporanTransaksi(req.query);
   // helper.generatePDF(res, faktur);
   helper.laporanTransaksiCucian(res, faktur);
 });
 
-router.get("/pelanggan", (req, res) => {
-  laporanModel
-    .laporanPelanggan(req.query)
-    .then((result) => res.json(result))
-    .catch((err) => res.status(400).json(err));
+router.get("/pelanggan", async (req, res) => {
+  const faktur = await laporanModel.laporanPelanggan(req.query);
+  helper.laporanTransaksiPelanggan(res, faktur)
 });
+
 module.exports = router;
