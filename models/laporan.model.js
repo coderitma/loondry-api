@@ -11,7 +11,7 @@ exports.laporanTransaksi = ({
         {
           $match: {
             statusPengambilan: statusPengambilan,
-            sisa: { $gt: 0 },
+            // sisa: { $gt: 0 },
             tanggalTerima: {
               $gte: new Date(tanggalAwal),
               $lte: new Date(tanggalAkhir),
@@ -24,7 +24,7 @@ exports.laporanTransaksi = ({
               tanggal: { $dayOfMonth: "$tanggalTerima" },
               bulan: { $month: "$tanggalTerima" },
               tahun: { $year: "$tanggalTerima" },
-              // nomorHP: "$nomorHP",
+              nomorHP: "$nomorHP",
             },
             totalHarga: { $sum: "$totalHarga" },
           },
@@ -32,6 +32,7 @@ exports.laporanTransaksi = ({
       ],
       (err, result) => {
         if (err) {
+          console.log("error", err)
           reject(err);
         } else {
           resolve(result);

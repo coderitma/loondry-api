@@ -1,32 +1,80 @@
 const pdfkit = require("pdfkit");
 
-const invoice = {
-  shipping: {
-    name: "John Doe",
-    address: "1234 Main Street",
-    city: "San Francisco",
-    state: "CA",
-    country: "US",
-    postal_code: 94111,
-  },
-  items: [
-    {
-      item: "TC 100",
-      description: "Toner Cartridge",
-      quantity: 2,
-      amount: 6000,
-    },
-    {
-      item: "USB_EXT",
-      description: "USB Cable Extender",
-      quantity: 1,
-      amount: 2000,
-    },
-  ],
-  subtotal: 8000,
-  paid: 0,
-  invoice_nr: 1234,
-};
+exports.laporanTransaksiCucian = (res, faktur) => {
+  try {
+    let doc = new pdfkit({ size: "A4", margin: 10});
+    generateCommonHeader(doc)
+    generateTableLaporanTransaksi(doc, faktur)
+    let buffers = [];
+    doc.on("data", buffers.push.bind(buffers));
+    doc.on("end", () => {
+      let pdfData = Buffer.concat(buffers);
+      res
+        .writeHead(200, {
+          "Content-Length": Buffer.byteLength(pdfData),
+          "Content-Type": "application/pdf",
+          "Content-disposition": `attachment;filename=laporan-transaksi.pdf`,
+        })
+        .end(pdfData);
+    }, (err) => console.log(err));
+
+    doc.end();
+  } catch (err) {
+    console.log(err)
+  }
+  
+}
+
+
+function generateCommonHeader(doc) {
+  doc
+    .font("Helvetica-Bold")
+    .fillColor("#444444")
+    .fontSize(30)
+    .text("Laporan Transaksi Laundry", 40, 40, {align: "center"})
+    .moveDown();
+    doc.strokeColor("#aaaaaa").lineWidth(1).moveTo(0, 80).lineTo(1000, 80).stroke();
+}
+
+
+function generateTableRowLaporanTransaksi(doc, y, tanggal, nomorHP, totalHarga) {
+  doc.fontSize(10)
+  .text(tanggal, 50, y)
+  .text(nomorHP, 150, y)
+  .text(totalHarga, 250, y, {
+    width: 90,
+    align: "right",
+  });
+}
+
+function generateTableLaporanTransaksi(doc, faktur) {
+  let i;
+  let count = 0;
+  const invoiceTableTop = 150;
+
+  
+
+  doc.font("Helvetica-Bold");
+  generateTableRowLaporanTransaksi(
+    doc, invoiceTableTop, 
+    "Tanggal", "Pelanggan", "Total Harga");
+  generateHr(doc, invoiceTableTop + 20);
+  doc.font("Helvetica");
+  for (i = 0; i < faktur.length; i++) {
+    const data = faktur[i];
+    const position = invoiceTableTop + (i + 1) * 30;
+    count += data.totalHarga;
+    generateTableRowLaporanTransaksi(
+      doc, position, 
+      `${data._id.tanggal}-${data._id.bulan}-${data._id.tahun}`, 
+      data._id.nomorHP, data.totalHarga);
+    generateHr(doc, position + 20);
+  }
+
+  const subtotalPosition = invoiceTableTop + (i + 1) * 30;
+  doc.font("Helvetica-Bold");
+  generateTableRowLaporanTransaksi(doc, subtotalPosition, "Total jumlah", count);
+}
 
 function generateHeader(doc) {
   doc
